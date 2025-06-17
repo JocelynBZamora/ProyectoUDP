@@ -70,6 +70,31 @@ namespace ProyectoUDP.Services
                     }
                     continue;
                 }
+                else if (mensaje.Contains("\"Tipo\":\"Respuesta\""))
+                {
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(mensaje);
+                        var root = doc.RootElement;
+
+                        string nombre = root.GetProperty("Nombre").GetString() ?? "";
+                        string respuesta = root.GetProperty("Respuesta").GetString() ?? "";
+                        int puntaje = root.GetProperty("Puntaje").GetInt32();
+                        Respuesta?.Invoke(new RespuestaModel
+                        {
+                            Nombre = nombre,
+                            Opcion = respuesta.FirstOrDefault(),
+                            ClienteEndPoint = result.RemoteEndPoint,
+                            Puntaje = puntaje
+                        });
+                        // Aquí puedes guardar o actualizar la puntuación por usuario
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("[ERROR] Al procesar respuesta: " + ex.Message);
+                    }
+                }
+
 
             }
         }

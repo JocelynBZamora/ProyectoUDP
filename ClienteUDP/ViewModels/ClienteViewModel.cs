@@ -20,15 +20,26 @@ namespace ClienteUDP.ViewModels
         public string ipServidor = "0.0.0.0";
         [ObservableProperty]
         public string nombre = "Ingresa nombre";
+       
+
+        [ObservableProperty]
+        private string respuestaCorrecta = "";
+
+        [ObservableProperty]
+        private int puntaje = 0;
+        [ObservableProperty]
+        private bool respuestasHabilitadas = false;
+
         [ObservableProperty]
         private string preguntaActual;
         public ObservableCollection<string> Opciones { get; set; } = new();
 
         public bool Registrado { get; private set; }
         public bool PuedeRegistrar => !Registrado;
+        
 
         private ClientUDP? clienteUDP;
-        private void MostrarPregunta(PreguntaModel pregunta)
+        private async void MostrarPregunta(PreguntaModel pregunta)
         {
             App.Current.Dispatcher.Invoke(() =>
             {
@@ -38,9 +49,35 @@ namespace ClienteUDP.ViewModels
                 {
                     Opciones.Add(opcion);
                 }
+                RespuestasHabilitadas = false;
+                RespuestaCorrecta = pregunta.RespuestaCorrecta;
+            });
+            await Task.Delay(3000);
+
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                RespuestasHabilitadas = true; 
             });
         }
- 
+        [RelayCommand]
+        private void SeleccionarRespuesta(string opcionSeleccionada)
+        {
+
+            
+            
+            if (opcionSeleccionada == RespuestaCorrecta)
+            {
+                Puntaje++;
+            }
+            
+            clienteUDP?.EnviarRespuesta(nombre, opcionSeleccionada, Puntaje);
+            //limpiar para siguiente pregunta
+            Opciones.Clear();
+            MessageBox.Show("Respuesta enviada");
+            
+        }
+
+
         [RelayCommand]
         public void Registrar()
         {
@@ -55,6 +92,7 @@ namespace ClienteUDP.ViewModels
             {
                 clienteUDP = new(ipServidor.Trim(), 65000, 65001);
                 clienteUDP.DuplicadoRecibido += () => App.Current.Dispatcher.Invoke(() => MessageBox.Show("Nombre existente, ingrese otro"));
+                
                 clienteUDP.PreguntaRecibida += MostrarPregunta;
 
             }

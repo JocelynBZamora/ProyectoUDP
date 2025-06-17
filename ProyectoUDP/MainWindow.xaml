@@ -7,71 +7,66 @@
         xmlns:vm="clr-namespace:ProyectoUDP.ViewModels"
         xmlns:local="clr-namespace:ProyectoUDP"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        
+        Title="Quiz Historia" Height="600" Width="700" ResizeMode="NoResize"
+    WindowStartupLocation="CenterScreen" Background="#FAFAFA">
     <Window.DataContext>
         <vm:ServidorViewModel/>
     </Window.DataContext>
 
-    <Grid Margin="10">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0 0 0 10">
-            <!--<Button Content="Iniciar Servidor" Command="{Binding IniciarCommand}" Margin="0 0 10 0"/>
-            <Button Content="Detener Servidor" Command="{Binding DetenerCommand}" Margin="0 0 10 0"/>-->
-            <Button Content="Iniciar Cuestionario" Command="{Binding IniciarCuestionarioCommand}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0 0 0 20">
+            <TextBlock Text="Servidor Quiz" FontSize="20" FontWeight="Bold" Foreground="#333"/>
+            <TextBlock Text="{Binding IpServidor}" FontSize="12" Foreground="#888" VerticalAlignment="Bottom"/>
         </StackPanel>
 
-        <TextBlock Grid.Row="1" Text="{Binding IpServidor}" FontWeight="Bold" Margin="0 0 0 10"/>
+        <!-- Botón -->
+        <Button Grid.Row="1" Grid.ColumnSpan="2" Content="▶ Iniciar Cuestionario"
+                Command="{Binding IniciarCuestionarioCommand}"
+                HorizontalAlignment="Left"
+                Padding="12,6"
+                Margin="0 0 0 20"
+                Background="#007ACC"
+                Foreground="White"
+                FontWeight="SemiBold"
+                BorderThickness="0"
+                Cursor="Hand"/>
 
-        <controls:TimerControl x:Name="TimerControl" Grid.Row="2" Margin="0 0 0 10"/>
-
-        <StackPanel Grid.Row="3" Margin="0 0 0 10">
-            <TextBlock Text="Pregunta Actual:" FontWeight="Bold"/>
-            <TextBlock Text="{Binding PreguntaActual}" FontSize="16" TextWrapping="Wrap" Margin="0 5 0 0"/>
-        </StackPanel>
-
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <ListBox Grid.Column="0" ItemsSource="{Binding Opciones}" Margin="0 0 10 0">
+        <!-- Pregunta -->
+        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0 0 20 0">
+            <TextBlock Text="Pregunta actual" FontWeight="Bold" FontSize="14" Margin="0 0 0 4"/>
+            <TextBlock Text="{Binding PreguntaActual}" FontSize="16" TextWrapping="Wrap" Foreground="#222"/>
+            <ListBox ItemsSource="{Binding Opciones}" Margin="0 10 0 0" BorderThickness="0">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding}" Margin="5"/>
+                        <TextBlock Text="{Binding}" Padding="6" FontSize="12" Background="#EEE" Margin="0 4" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <StackPanel Grid.Column="1" Width="200">
-                <TextBlock Text="Usuarios Conectados:" FontWeight="Bold" Margin="0 0 0 5"/>
-                <ListBox ItemsSource="{Binding UsuariosConectados}" Height="200">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Nombre}" Margin="5"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </StackPanel>
-
-        </Grid>
-
-        <StackPanel Grid.Row="5" Margin="0 10 0 0">
-            <TextBlock Text="Resultados de la Pregunta:" FontWeight="Bold" Margin="0 0 0 5"/>
-            <TextBlock Text="{Binding ResultadosPreguntaActual}" TextWrapping="Wrap"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="6" Margin="0 10 0 0">
-            <TextBlock Text="Mensajes del Servidor:" FontWeight="Bold" Margin="0 0 0 5"/>
-            <ListBox ItemsSource="{Binding MensajesRecibidos}" Height="100"/>
+        <!-- Timer -->
+        <controls:TimerControl x:Name="TimerControl" Grid.Row="2" Grid.Column="1" Margin="0 0 0 20"/>
+
+        <!-- Mensajes del servidor -->
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="1" Margin="0 10 0 10">
+            <TextBlock Text="Respuestas recibidas" FontWeight="Bold" FontSize="14" Margin="0 0 0 4"/>
+            <ListBox ItemsSource="{Binding MensajesRecibidos}" BorderThickness="0" Background="#F8F8F8" Height="90" />
         </StackPanel>
+
+      
     </Grid>
 </Window>

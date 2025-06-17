@@ -31,7 +31,7 @@ namespace ProyectoUDP.ViewModels
         private readonly HashSet<IPEndPoint> ipsRespondidas = new();
         private readonly HashSet<string> nombresRespondidos = new();
         public ObservableCollection<string> MensajesRecibidos { get; set; } = new();
-
+        public ObservableCollection<string>MensajeOpcion {  get; set; } = new();
         public bool GetParticipantesConectados() => serverUdp?.RegistroClientes.Count > 0;
 
         public ServidorViewModel()
@@ -86,7 +86,27 @@ namespace ProyectoUDP.ViewModels
                 }
             }
             MostrarPregunta(indicePregunta);
+            if (indicePregunta >= preguntas.Length)
+            {
+                timerControl?.StopTimer();
+                //MostrarResumenDePregunta();
+                return;
+            }
+
         }
+        //private void MostrarResumenDePregunta()
+        //{
+        //    var sb = new StringBuilder();
+
+        //    MensajeOpcion.Clear(); // ← evita duplicados
+
+        //    foreach (var linea in sb.ToString().Split('\n'))
+        //    {
+        //        if (!string.IsNullOrWhiteSpace(linea))
+        //            MensajeOpcion.Add(linea);
+        //    }
+        //    ResultadosPreguntaActual = sb.ToString();
+        //}
 
         public PreguntasModel PreguntaEnCurso { get; private set; }
         public ObservableCollection<string> Opciones { get; set; } = new();
@@ -147,6 +167,17 @@ namespace ProyectoUDP.ViewModels
             }
         }
 
+        private Dictionary<string, int> puntajesPorAlumno = new();
+
+//        private Dictionary<string, int> conteoRespuestas = new()
+//{
+//    { "A)", 0 },
+//    { "B)", 0 },
+//    { "C)", 0 },
+//    { "D)", 0 }
+//};
+
+
 
         private void RegistarRespuesta(RespuestaModel responce)
         {
@@ -157,22 +188,32 @@ namespace ProyectoUDP.ViewModels
                     OnPropertyChanged(nameof(GetParticipantesConectados));
                     return;
                 }
-                if (ipsRespondidas.Contains(responce.ClienteEndPoint) ||
-                    nombresRespondidos.Contains(responce.Nombre))
-                    return;
+
                 if (!nombresRespondidos.Contains(responce.Nombre))
                 {
                     nombresRespondidos.Add(responce.Nombre);
-
+                    ipsRespondidas.Add(responce.ClienteEndPoint);
                 }
 
+                //// Actualizar conteo de respuestas
+                //string opcionConPrefijo = $"{responce.Opcion})";
+                //if (conteoRespuestas.ContainsKey(opcionConPrefijo))
+                //    conteoRespuestas[opcionConPrefijo]++;
 
-                ipsRespondidas.Add(responce.ClienteEndPoint);
-                nombresRespondidos.Add(responce.Nombre);
+                // ✅ Guardar puntaje
+                puntajesPorAlumno[responce.Nombre] = responce.Puntaje;
 
+                // ✅ Limpiar respuesta anterior
+                var existentes = MensajesRecibidos.Where(m => m.StartsWith(responce.Nombre)).ToList();
+                foreach (var item in existentes)
+                    MensajesRecibidos.Remove(item);
 
+                MensajesRecibidos.Add($"{responce.Nombre} Puntos: {responce.Puntaje}/15");
             });
         }
+
+
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propiedad) =>

@@ -12,6 +12,7 @@ namespace ProyectoUDP.Models
         public string Nombre { get; set; } = null!;
         public char Opcion { get; set; }
         public IPEndPoint ClienteEndPoint { get; set; } = null!;
+        public int Puntaje;
         public bool EsCorrecta { get; set; }
     }
 }

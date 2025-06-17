@@ -1,107 +1,152 @@
 [
   {
     "Texto": "¿Quién fue el primer presidente de México?",
-    "Opciones": [ "Benito Juárez", "Guadalupe Victoria", "Vicente Guerrero", "Agustín de Iturbide" ],
-    "RespuestaCorrecta": "Guadalupe Victoria"
+    "Opciones": [
+      "A) Benito Juárez",
+      "B) Guadalupe Victoria",
+      "C) Vicente Guerrero",
+      "D) Agustín de Iturbide"
+    ],
+    "RespuestaCorrecta": "B) Guadalupe Victoria"
   },
   {
     "Texto": "¿En qué año comenzó la Revolución Mexicana?",
-    "Opciones": [ "1810", "1847", "1910", "1921" ],
-    "RespuestaCorrecta": "1910"
+    "Opciones": [
+      "A) 1810",
+      "B) 1847",
+      "C) 1910",
+      "D) 1921"
+    ],
+    "RespuestaCorrecta": "C) 1910"
   },
   {
     "Texto": "¿Cuál fue la causa principal de la Primera Guerra Mundial?",
     "Opciones": [
-      "El asesinato del archiduque Francisco Fernando",
-      "El tratado de Versalles",
-      "La invasión de Polonia",
-      "La guerra de secesión estadounidense"
+      "A) El asesinato del archiduque Francisco Fernando",
+      "B) El tratado de Versalles",
+      "C) La invasión de Polonia",
+      "D) La guerra de secesión estadounidense"
     ],
-    "RespuestaCorrecta": "El asesinato del archiduque Francisco Fernando"
+    "RespuestaCorrecta": "A) El asesinato del archiduque Francisco Fernando"
   },
   {
     "Texto": "¿Qué imperio construyó el Coliseo en Roma?",
-    "Opciones": [ "Imperio Bizantino", "Imperio Otomano", "Imperio Romano", "Imperio Griego" ],
-    "RespuestaCorrecta": "Imperio Romano"
+    "Opciones": [
+      "A) Imperio Bizantino",
+      "B) Imperio Otomano",
+      "C) Imperio Romano",
+      "D) Imperio Griego"
+    ],
+    "RespuestaCorrecta": "C) Imperio Romano"
   },
   {
     "Texto": "¿Quién fue el líder del movimiento de independencia en la India?",
-    "Opciones": [ "Jawaharlal Nehru", "Mahatma Gandhi", "Indira Gandhi", "Subhas Chandra Bose" ],
-    "RespuestaCorrecta": "Mahatma Gandhi"
+    "Opciones": [
+      "A) Jawaharlal Nehru",
+      "B) Mahatma Gandhi",
+      "C) Indira Gandhi",
+      "D) Subhas Chandra Bose"
+    ],
+    "RespuestaCorrecta": "B) Mahatma Gandhi"
   },
   {
     "Texto": "¿Qué civilización construyó Machu Picchu?",
-    "Opciones": [ "Azteca", "Maya", "Inca", "Tolteca" ],
-    "RespuestaCorrecta": "Inca"
+    "Opciones": [
+      "A) Azteca",
+      "B) Maya",
+      "C) Inca",
+      "D) Tolteca"
+    ],
+    "RespuestaCorrecta": "C) Inca"
   },
   {
     "Texto": "¿Qué país fue dividido por el Muro de Berlín?",
-    "Opciones": [ "Alemania", "Francia", "Polonia", "Austria" ],
-    "RespuestaCorrecta": "Alemania"
+    "Opciones": [
+      "A) Alemania",
+      "B) Francia",
+      "C) Polonia",
+      "D) Austria"
+    ],
+    "RespuestaCorrecta": "A) Alemania"
   },
   {
     "Texto": "¿Quién escribió la 'Declaración de Independencia' de Estados Unidos?",
-    "Opciones": [ "George Washington", "Benjamin Franklin", "Thomas Jefferson", "John Adams" ],
-    "RespuestaCorrecta": "Thomas Jefferson"
+    "Opciones": [
+      "A) George Washington",
+      "B) Benjamin Franklin",
+      "C) Thomas Jefferson",
+      "D) John Adams"
+    ],
+    "RespuestaCorrecta": "C) Thomas Jefferson"
   },
   {
     "Texto": "¿Cuál fue el nombre del tratado que terminó la Primera Guerra Mundial?",
-    "Opciones": [ "Tratado de Versalles", "Tratado de París", "Tratado de Tordesillas", "Tratado de Utrecht" ],
-    "RespuestaCorrecta": "Tratado de Versalles"
+    "Opciones": [
+      "A) Tratado de Versalles",
+      "B) Tratado de París",
+      "C) Tratado de Tordesillas",
+      "D) Tratado de Utrecht"
+    ],
+    "RespuestaCorrecta": "A) Tratado de Versalles"
   },
   {
     "Texto": "¿Qué evento marcó el inicio de la Segunda Guerra Mundial?",
-    "Opciones": [ "El ataque a Pearl Harbor", "La invasión de Polonia", "La guerra civil española", "La caída de Francia" ],
-    "RespuestaCorrecta": "La invasión de Polonia"
+    "Opciones": [
+      "A) El ataque a Pearl Harbor",
+      "B) La invasión de Polonia",
+      "C) La guerra civil española",
+      "D) La caída de Francia"
+    ],
+    "RespuestaCorrecta": "B) La invasión de Polonia"
   },
   {
     "Texto": "¿En qué fecha se firmó la Constitución de 1917?",
     "Opciones": [
-      "5 de mayo de 1917",
-      "5 de febrero de 1917",
-      "5 de febrero de 1920",
-      "5 de mayo de 1920"
+      "A) 5 de mayo de 1917",
+      "B) 5 de febrero de 1917",
+      "C) 5 de febrero de 1920",
+      "D) 5 de mayo de 1920"
     ],
-    "RespuestaCorrecta": "5 de febrero de 1917"
+    "RespuestaCorrecta": "B) 5 de febrero de 1917"
   },
   {
     "Texto": "¿Cuánto tiempo duró la guerra de los 100 años?",
     "Opciones": [
-      "90 años",
-      "115 años",
-      "100 años",
-      "116 años"
+      "A) 90 años",
+      "B) 115 años",
+      "C) 100 años",
+      "D) 116 años"
     ],
-    "RespuestaCorrecta": "116 años"
+    "RespuestaCorrecta": "D) 116 años"
   },
   {
     "Texto": "¿Quién fue el primer hombre en caminar sobre la luna?",
     "Opciones": [
-      "Buzz Aldrin",
-      "Alan Armstrong",
-      "Alan Shepard",
-      "Neil Armstrong"
+      "A) Buzz Aldrin",
+      "B) Alan Armstrong",
+      "C) Alan Shepard",
+      "D) Neil Armstrong"
     ],
-    "RespuestaCorrecta": "Neil Armstrong"
+    "RespuestaCorrecta": "D) Neil Armstrong"
   },
   {
     "Texto": "¿Dónde nació Adolf Hitler?",
     "Opciones": [
-      "Austria",
-      "Alemania",
-      "Rusia",
-      "Polonia"
+      "A) Austria",
+      "B) Alemania",
+      "C) Rusia",
+      "D) Polonia"
     ],
-    "RespuestaCorrecta": "Austria"
+    "RespuestaCorrecta": "A) Austria"
   },
   {
     "Texto": "¿Qué ciudades fueron bombardeadas con bombas atómicas en 1945?",
     "Opciones": [
-      "Hiroshima y Nagasaki",
-      "Hiroshima y Tokio",
-      "Yokohama y Tokio",
-      "Tokio y Nagasaki"
+      "A) Hiroshima y Nagasaki",
+      "B) Hiroshima y Tokio",
+      "C) Yokohama y Tokio",
+      "D) Tokio y Nagasaki"
     ],
-    "RespuestaCorrecta": "Hiroshima y Nagasaki"
+    "RespuestaCorrecta": "A) Hiroshima y Nagasaki"
   }
 ]

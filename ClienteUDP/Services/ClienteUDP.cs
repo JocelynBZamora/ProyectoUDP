@@ -52,6 +52,20 @@ namespace ClienteUDP.Services
         }
         public event Action<string>? AlRecibirMensaje;
 
+        public void EnviarRespuesta(string nombre, string respuesta, int puntaje)
+        {
+            var paquete = new
+            {
+                Tipo = "Respuesta",
+                Nombre = nombre,
+                Respuesta = respuesta,
+                Puntaje = puntaje
+            };
+
+            string json = JsonSerializer.Serialize(paquete);
+            var datos = Encoding.UTF8.GetBytes(json);
+            clienteUDP.Send(datos, datos.Length, IPEndPoint);
+        }
 
         public void EnviarRegistro(string nombre)
         {
