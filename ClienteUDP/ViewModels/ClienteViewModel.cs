@@ -29,14 +29,17 @@ namespace ClienteUDP.ViewModels
         private int puntaje = 0;
         [ObservableProperty]
         private bool respuestasHabilitadas = false;
-
+        [ObservableProperty]
+        private bool registroHabilitado = true;
         [ObservableProperty]
         private string preguntaActual;
         public ObservableCollection<string> Opciones { get; set; } = new();
 
-        public bool Registrado { get; private set; }
+        [ObservableProperty]
+        private bool registrado = false;
         public bool PuedeRegistrar => !Registrado;
-        
+
+
 
         private ClientUDP? clienteUDP;
         private async void MostrarPregunta(PreguntaModel pregunta)
@@ -97,12 +100,9 @@ namespace ClienteUDP.ViewModels
 
             }
             clienteUDP.EnviarRegistro(nombre.Trim());
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                Registrado = true;
-                OnPropertyChanged(nameof(Registrado));
-                OnPropertyChanged(nameof(PuedeRegistrar));
-            });
+            Registrado = true;
+            OnPropertyChanged(nameof(PuedeRegistrar)); 
+
         }
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propertyName) =>

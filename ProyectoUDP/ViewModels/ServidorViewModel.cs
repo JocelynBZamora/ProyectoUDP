@@ -23,7 +23,7 @@ namespace ProyectoUDP.ViewModels
 
         [ObservableProperty]
         private string ipServidor = "0.0.0.0";
-
+      
 
         public ObservableCollection<RespuestaModel> UsuariosConectados { get; } = new();
 
@@ -178,7 +178,7 @@ namespace ProyectoUDP.ViewModels
 //};
 
 
-
+        //Registro usuario
         private void RegistarRespuesta(RespuestaModel responce)
         {
             App.Current.Dispatcher.Invoke(() =>
@@ -200,10 +200,10 @@ namespace ProyectoUDP.ViewModels
                 //if (conteoRespuestas.ContainsKey(opcionConPrefijo))
                 //    conteoRespuestas[opcionConPrefijo]++;
 
-                // ✅ Guardar puntaje
+                // Guardar puntaje
                 puntajesPorAlumno[responce.Nombre] = responce.Puntaje;
 
-                // ✅ Limpiar respuesta anterior
+                //  Limpiar respuesta anterior
                 var existentes = MensajesRecibidos.Where(m => m.StartsWith(responce.Nombre)).ToList();
                 foreach (var item in existentes)
                     MensajesRecibidos.Remove(item);
