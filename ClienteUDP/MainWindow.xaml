@@ -3,10 +3,23 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm ="clr-namespace:ClienteUDP.ViewModels"
         xmlns:local="clr-namespace:ClienteUDP"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <Window.DataContext>
+        <vm:ClienteViewModel/>
+    </Window.DataContext>
+    <StackPanel Margin="20">
+        <TextBlock Text="IP del Servidor:"/>
+        <TextBox Text="{Binding IpServidor, UpdateSourceTrigger=PropertyChanged}" Margin="0 5"/>
 
-    </Grid>
+        <TextBlock Text="Nombre de Usuario:"/>
+        <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}" Margin="0 5"/>
+
+        <Button Content="Registrar" Command="{Binding RegistrarCommand}" Margin="0 10"/>
+
+        <!--<TextBlock Text="Estado:" FontWeight="Bold"/>
+        <TextBlock Text="{Binding MensajeEstado}" TextWrapping="Wrap"/>-->
+    </StackPanel>
 </Window>

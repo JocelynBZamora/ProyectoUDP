@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProyectoUDP.Services
 {
@@ -14,13 +15,11 @@ namespace ProyectoUDP.Services
     {
         private UdpClient? udpClient;
         private Thread? hiloEscucha;
-        private int port = 6500;
+        private int port = 65000;
 
 
         public event Action<string>? AlTenerError;
-        public event Action? AlTenerDetenerse;
-        public event Action? AlIniciar;
-
+ 
 
 
         public event Action<RespuestaModel>? Respuesta;
@@ -29,13 +28,13 @@ namespace ProyectoUDP.Services
 
 
         public List<IPEndPoint> RegistroClientes { get; set; } = new List<IPEndPoint>();
-        public HashSet<string> nombresRegistrados = new HashSet<string>();
 
         public void Iniciar()
         {
             udpClient = new();
             udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
-
+            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            Task.Run(ResivirMensaje);
         }
 
         private async Task ResivirMensaje()
@@ -55,42 +54,47 @@ namespace ProyectoUDP.Services
 
                 if (mensaje.StartsWith("REGISTRO|"))
                 {
-
                     string nombre = mensaje.Substring("REGISTRO|".Length);
 
-
-                    if (!RegistroClientes.Any(c =>
-                            c.Address.Equals(endPoint.Address) &&
-                            c.Port == endPoint.Port))
+                    if (!RegistroClientes.Any(c => c.Equals(endPoint)))
                     {
                         RegistroClientes.Add(endPoint);
-                        System.Diagnostics.Debug.WriteLine($"[Servidor] Cliente registrado correctamente: {nombre} ({endPoint})");
+                        Respuesta?.Invoke(new RespuestaModel { Nombre = nombre, Opcion = '-', ClienteEndPoint = endPoint });
 
-
-                        Respuesta?.Invoke(new RespuestaModel
-                        {
-                            Nombre = nombre,
-                            Opcion = '-',
-                            ClienteEndPoint = endPoint
-                        });
+                        // ENVÍA confirmación
+                        EnviarMensaje("REGISTRO_OK", endPoint);
+                    }
+                    else
+                    {
+                        EnviarMensaje("ERROR|DUPLICADO", endPoint);
                     }
                     continue;
                 }
+
             }
         }
-        public void Detener()
+
+       public void EnviarPreguntas(PreguntasModel p)
         {
-            try
+            var paquete = new
             {
-                enEjecucion = false;
-                udpClient?.Close();
-                hiloEscucha?.Join(500);
-                AlTenerDetenerse?.Invoke();
-            }
-            catch (Exception ex)
-            {
-                AlTenerError?.Invoke($"Error al detener servidor: {ex.Message}");
-            }
+                Tipo = "Pregunta",
+                Texto = p.Texto,
+                Opciones = p.Opciones,
+                RespuestaCorrecta = p.RespuestaCorrecta
+            };
+            var json = JsonSerializer.Serialize(paquete);
+
+            var datos = Encoding.UTF8.GetBytes(json);
+
+            foreach (var c in RegistroClientes)
+                udpClient?.Send(datos, datos.Length, c);
+            //Task.Delay(2000).ContinueWith(_ =>
+            //{
+            //    var inicio = Encoding.UTF8.GetBytes("COMIENZO|");
+            //    foreach (var c in RegistroClientes)
+            //        udpClient?.Send(inicio, inicio.Length, c);
+            //});
         }
         public void EnviarMensaje(string mensaje, IPEndPoint destino)
         {

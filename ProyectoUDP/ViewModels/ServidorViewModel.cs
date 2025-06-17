@@ -21,26 +21,28 @@ namespace ProyectoUDP.ViewModels
     {
         private ServerUdp? serverUdp;
 
-        public string Estado { get => estado; set { estado = value; OnPropertyChanged(); } }
-        private string estado = "Servidor detenido";
-
         [ObservableProperty]
         private string ipServidor = "0.0.0.0";
-        [ObservableProperty]
-        private string nombreUsuario = "";
 
+
+        public ObservableCollection<RespuestaModel> UsuariosConectados { get; } = new();
+
+
+        private readonly HashSet<IPEndPoint> ipsRespondidas = new();
+        private readonly HashSet<string> nombresRespondidos = new();
         public ObservableCollection<string> MensajesRecibidos { get; set; } = new();
 
         public bool GetParticipantesConectados() => serverUdp?.RegistroClientes.Count > 0;
 
         public ServidorViewModel()
         {
-             ipServidor = Dns.GetHostEntry(Dns.GetHostName())
-                             .AddressList
-                             .FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                             ?.ToString() ?? "Desconocido";
+            ipServidor = Dns.GetHostEntry(Dns.GetHostName())
+                            .AddressList
+                            .FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                            ?.ToString() ?? "Desconocido";
             serverUdp = new();
-            
+            serverUdp.Respuesta += RegistarRespuesta;
+            serverUdp.Iniciar();
             CargarPreguntasDesdeJson();
 
         }
@@ -86,11 +88,15 @@ namespace ProyectoUDP.ViewModels
             MostrarPregunta(indicePregunta);
         }
 
-
+        public PreguntasModel PreguntaEnCurso { get; private set; }
         public ObservableCollection<string> Opciones { get; set; } = new();
         public string ResultadosPreguntaActual { get => resultadosPreguntaActual; set { resultadosPreguntaActual = value; OnPropertyChanged(); } }
         private string resultadosPreguntaActual = "";
         private string respuestaCorrectaActual = "";
+        public static class ServidorViewModelAccessor
+        {
+            public static string RespuestaCorrectaActual { get; set; } = "";
+        }
         private void MostrarPregunta(int indice)
         {
             if (indice < 0 || indice >= preguntas.Length) return;
@@ -102,23 +108,17 @@ namespace ProyectoUDP.ViewModels
             Opciones.Clear();
             foreach (var op in p.Opciones)
                 Opciones.Add(op);
+            PreguntaEnCurso = new PreguntasModel();
+
+            PreguntaEnCurso.Texto = p.Texto;
+            PreguntaEnCurso.RespuestaCorrecta = p.RespuestaCorrecta;
+            PreguntaEnCurso.Opciones = p.Opciones;
+
+
             respuestaCorrectaActual = p.RespuestaCorrecta;
-
-            // Enviar JSON con pregunta, opciones y respuesta correcta
-            //if (servidor != null)
-            //{
-            //    var paquete = new
-            //    {
-            //        Tipo = "Pregunta",
-            //        Texto = p.Texto,
-            //        Opciones = p.Opciones,
-            //        RespuestaCorrecta = p.RespuestaCorrecta
-            //    };
-            //    ServidorViewModelAccessor.RespuestaCorrectaActual = p.RespuestaCorrecta;
-
-            //    string mensajeJson = JsonSerializer.Serialize(paquete);
-            //    servidor.EnviarBroadcast(mensajeJson);
-            //}
+            serverUdp?.EnviarPreguntas(PreguntaEnCurso);
+            
+           
         }
 
 
@@ -147,16 +147,33 @@ namespace ProyectoUDP.ViewModels
             }
         }
 
+
         private void RegistarRespuesta(RespuestaModel responce)
         {
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 if (responce.Opcion == '-')
                 {
                     OnPropertyChanged(nameof(GetParticipantesConectados));
                     return;
                 }
+                if (ipsRespondidas.Contains(responce.ClienteEndPoint) ||
+                    nombresRespondidos.Contains(responce.Nombre))
+                    return;
+                if (!nombresRespondidos.Contains(responce.Nombre))
+                {
+                    nombresRespondidos.Add(responce.Nombre);
+
+                }
+
+
+                ipsRespondidas.Add(responce.ClienteEndPoint);
+                nombresRespondidos.Add(responce.Nombre);
+
+
             });
         }
+
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propiedad) =>
            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propiedad));
