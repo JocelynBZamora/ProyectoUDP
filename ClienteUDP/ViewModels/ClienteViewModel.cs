@@ -35,10 +35,12 @@ namespace ClienteUDP.ViewModels
         private string preguntaActual;
         public ObservableCollection<string> Opciones { get; set; } = new();
 
+        // Asegúrate de que tu propiedad Registrado y PuedeRegistrar estén definidas así:
         [ObservableProperty]
         private bool registrado = false;
-        public bool PuedeRegistrar => !Registrado;
 
+        // Esta propiedad se recalcula automáticamente cuando 'Registrado' cambia
+        public bool PuedeRegistrar => !Registrado;
 
 
         private ClientUDP? clienteUDP;
@@ -85,29 +87,45 @@ namespace ClienteUDP.ViewModels
         public void Registrar()
         {
 
-           
             if (string.IsNullOrWhiteSpace(ipServidor) || string.IsNullOrWhiteSpace(nombre))
             {
                 MessageBox.Show("Ingresa la IP del servidor y tu nombre.");
                 return;
             }
+
             if (clienteUDP == null)
             {
                 clienteUDP = new(ipServidor.Trim(), 65000, 65001);
-                clienteUDP.DuplicadoRecibido += () => App.Current.Dispatcher.Invoke(() => MessageBox.Show("Nombre existente, ingrese otro"));
-                
+                // Cuando se recibe un nombre duplicado del servidor
+                clienteUDP.DuplicadoRecibido += () =>
+                {
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("Nombre existente, ingrese otro");
+                        // Si el nombre es duplicado, re-habilitar el registro
+                        Registrado = false;
+                        OnPropertyChanged(nameof(PuedeRegistrar));
+                    });
+                };
                 clienteUDP.PreguntaRecibida += MostrarPregunta;
-                Registrado = false;
-                MessageBox.Show("Registro exitoso, espera a que inicie el quiz");
-
             }
+
+            // Aquí enviamos el registro.
+            // La deshabilitación ocurre *después* de enviar, asumiendo éxito
+            // a menos que recibamos un mensaje de duplicado.
             clienteUDP.EnviarRegistro(nombre.Trim());
-            Registrado = true;
-            OnPropertyChanged(nameof(PuedeRegistrar)); 
+
+            // Asumimos que el registro fue enviado. Deshabilitamos los campos.
+            Registrado = true; // Establecer a true para deshabilitar
+            OnPropertyChanged(nameof(PuedeRegistrar)); // Notificar a la UI
+            MessageBox.Show("Registro enviado. Espera confirmación o el inicio del quiz.");
 
         }
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        
+
+
+        //public event PropertyChangedEventHandler? PropertyChanged;
+        //private void OnPropertyChanged(string propertyName) =>
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
