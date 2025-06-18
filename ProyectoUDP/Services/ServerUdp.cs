@@ -28,6 +28,7 @@ namespace ProyectoUDP.Services
 
 
         public List<IPEndPoint> RegistroClientes { get; set; } = new List<IPEndPoint>();
+        private HashSet<string> nombresRegistrados = new();
 
         public void Iniciar()
         {
@@ -57,18 +58,21 @@ namespace ProyectoUDP.Services
                     string nombre = mensaje.Substring("REGISTRO|".Length);
 
                     if (!RegistroClientes.Any(c => c.Equals(endPoint)))
-                    {
-                        RegistroClientes.Add(endPoint);
-                        Respuesta?.Invoke(new RespuestaModel { Nombre = nombre, Opcion = '-', ClienteEndPoint = endPoint });
+                        if (nombresRegistrados.Contains(nombre))
+                        {
+                            // ❌ Nombre ya usado
+                            EnviarMensaje("ERROR|DUPLICADO", endPoint);
+                        }
+                        else
+                        {
+                            nombresRegistrados.Add(nombre);
+                            RegistroClientes.Add(endPoint);
+                            Respuesta?.Invoke(new RespuestaModel { Nombre = nombre, Opcion = '-', ClienteEndPoint = endPoint });
 
-                        // ENVÍA confirmación
-                        EnviarMensaje("REGISTRO_OK", endPoint);
-                    }
-                    else
-                    {
-                        EnviarMensaje("ERROR|DUPLICADO", endPoint);
-                    }
+                            EnviarMensaje("REGISTRO_OK", endPoint);
+                        }
                     continue;
+
                 }
                 else if (mensaje.Contains("\"Tipo\":\"Respuesta\""))
                 {
