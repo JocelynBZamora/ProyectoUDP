@@ -148,5 +148,12 @@
       "D) Tokio y Nagasaki"
     ],
     "RespuestaCorrecta": "A) Hiroshima y Nagasaki"
+  },
+  {
+    "Texto": "Fin del quiz, gracias por participar",
+    "Opciones": [
+     
+    ],
+    "RespuestaCorrecta": ""
   }
 ]

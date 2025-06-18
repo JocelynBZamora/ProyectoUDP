@@ -81,17 +81,13 @@ namespace ProyectoUDP.ViewModels
                 if (indicePregunta >= preguntas.Length)
                 {
                     // Si llegamos al final, detener el timer
+
                     timerControl?.StopTimer();
                     return;
                 }
             }
             MostrarPregunta(indicePregunta);
-            if (indicePregunta >= preguntas.Length)
-            {
-                timerControl?.StopTimer();
-                //MostrarResumenDePregunta();
-                return;
-            }
+           
 
         }
         //private void MostrarResumenDePregunta()

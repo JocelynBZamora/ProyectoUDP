@@ -97,6 +97,8 @@ namespace ClienteUDP.ViewModels
                 clienteUDP.DuplicadoRecibido += () => App.Current.Dispatcher.Invoke(() => MessageBox.Show("Nombre existente, ingrese otro"));
                 
                 clienteUDP.PreguntaRecibida += MostrarPregunta;
+                Registrado = false;
+                MessageBox.Show("Registro exitoso, espera a que inicie el quiz");
 
             }
             clienteUDP.EnviarRegistro(nombre.Trim());
