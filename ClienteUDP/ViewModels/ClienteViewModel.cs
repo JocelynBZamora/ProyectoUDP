@@ -60,7 +60,9 @@ namespace ClienteUDP.ViewModels
                 RespuestaCorrecta = pregunta.RespuestaCorrecta;
                 MensajeEstado = "Nueva pregunta recibida. Esperando para responder..."; // Actualizar mensaje de estado
             });
-            await Task.Delay(3000);
+            // Usamos el TiempoRetardoMs que viene en la pregunta, o un valor por defecto si no viene
+            int delayTime = pregunta.TiempoRetardoMs > 0 ? pregunta.TiempoRetardoMs : 3000;
+            await Task.Delay(delayTime); // <-- ¡Ahora el servidor controla este tiempo!
 
             App.Current.Dispatcher.Invoke(() =>
             {

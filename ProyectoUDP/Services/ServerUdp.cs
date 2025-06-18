@@ -110,7 +110,8 @@ namespace ProyectoUDP.Services
                 Tipo = "Pregunta",
                 Texto = p.Texto,
                 Opciones = p.Opciones,
-                RespuestaCorrecta = p.RespuestaCorrecta
+                RespuestaCorrecta = p.RespuestaCorrecta,
+                TiempoRetardoMs = 3000 // Añadimos el tiempo de retardo aquí (3 segundos)
             };
             var json = JsonSerializer.Serialize(paquete);
 

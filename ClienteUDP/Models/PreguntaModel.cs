@@ -11,5 +11,7 @@ namespace ClienteUDP.Models
         public string Texto { get; set; } = null!;
         public List<string> Opciones { get; set; } = null!;
         public string RespuestaCorrecta { get; set; } = null!;
+        public int TiempoRetardoMs { get; set; } // Nueva propiedad para el tiempo de retardo en milisegundos
+
     }
 }
