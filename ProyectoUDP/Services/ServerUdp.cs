@@ -19,7 +19,7 @@ namespace ProyectoUDP.Services
 
 
         public event Action<string>? AlTenerError;
- 
+
 
 
         public event Action<RespuestaModel>? Respuesta;
@@ -45,7 +45,7 @@ namespace ProyectoUDP.Services
                 if (udpClient == null)
                 {
                     return;
-                } 
+                }
                 var result = await udpClient.ReceiveAsync();
                 string mensaje = Encoding.UTF8.GetString(result.Buffer);
                 IPEndPoint endPoint = result.RemoteEndPoint;
@@ -60,7 +60,6 @@ namespace ProyectoUDP.Services
                     if (!RegistroClientes.Any(c => c.Equals(endPoint)))
                         if (nombresRegistrados.Contains(nombre))
                         {
-                            // ❌ Nombre ya usado
                             EnviarMensaje("ERROR|DUPLICADO", endPoint);
                         }
                         else
@@ -91,27 +90,23 @@ namespace ProyectoUDP.Services
                             ClienteEndPoint = result.RemoteEndPoint,
                             Puntaje = puntaje
                         });
-                        // Aquí puedes guardar o actualizar la puntuación por usuario
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine("[ERROR] Al procesar respuesta: " + ex.Message);
                     }
                 }
-
-
             }
         }
 
-       public void EnviarPreguntas(PreguntasModel p)
+        public void EnviarPreguntas(PreguntasModel p)
         {
             var paquete = new
             {
                 Tipo = "Pregunta",
                 Texto = p.Texto,
                 Opciones = p.Opciones,
-                RespuestaCorrecta = p.RespuestaCorrecta,
-                TiempoRetardoMs = 3000 // Añadimos el tiempo de retardo aquí (3 segundos)
+                RespuestaCorrecta = p.RespuestaCorrecta
             };
             var json = JsonSerializer.Serialize(paquete);
 
@@ -119,12 +114,7 @@ namespace ProyectoUDP.Services
 
             foreach (var c in RegistroClientes)
                 udpClient?.Send(datos, datos.Length, c);
-            //Task.Delay(2000).ContinueWith(_ =>
-            //{
-            //    var inicio = Encoding.UTF8.GetBytes("COMIENZO|");
-            //    foreach (var c in RegistroClientes)
-            //        udpClient?.Send(inicio, inicio.Length, c);
-            //});
+        
         }
         public void EnviarMensaje(string mensaje, IPEndPoint destino)
         {
