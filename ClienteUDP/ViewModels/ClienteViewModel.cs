@@ -11,6 +11,8 @@ using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading; // Necesario para DispatcherTimer
+
 
 namespace ClienteUDP.ViewModels
 {
@@ -20,7 +22,6 @@ namespace ClienteUDP.ViewModels
         public string ipServidor = "0.0.0.0";
         [ObservableProperty]
         public string nombre = "Ingresa nombre";
-       
 
         [ObservableProperty]
         private string respuestaCorrecta = "";
@@ -35,17 +36,29 @@ namespace ClienteUDP.ViewModels
         private string preguntaActual = ""; //Inicializar para evitar null
         public ObservableCollection<string> Opciones { get; set; } = new();
 
-        // Asegúrate de que tu propiedad Registrado y PuedeRegistrar estén definidas así:
         [ObservableProperty]
         private bool registrado = false;
 
-        // Esta propiedad se recalcula automáticamente cuando 'Registrado' cambia
         public bool PuedeRegistrar => !Registrado;
 
         [ObservableProperty]
         private string mensajeEstado = ""; // Nueva propiedad para mensajes en la vista
 
+        // PROPIEDADES Y OBJETOS DEL TEMPORIZADOR AÑADIDOS
+        [ObservableProperty]
+        private int tiempoRestante = 0; // Propiedad para mostrar el tiempo restante
+        private DispatcherTimer? clientTimer; // Objeto temporizador
+
         private ClientUDP? clienteUDP;
+
+        // CONSTRUCTOR: Aquí inicializamos el temporizador y lo configuramos
+        public ClienteViewModel()
+        {
+            clientTimer = new DispatcherTimer();
+            clientTimer.Interval = TimeSpan.FromSeconds(1);
+            clientTimer.Tick += ClientTimer_Tick;
+        }
+
         private async void MostrarPregunta(PreguntaModel pregunta)
         {
             App.Current.Dispatcher.Invoke(() =>
@@ -56,43 +69,74 @@ namespace ClienteUDP.ViewModels
                 {
                     Opciones.Add(opcion);
                 }
-                RespuestasHabilitadas = false;
+                // Las respuestas NO se habilitan aquí, se habilitan con la señal del servidor (IniciarConteoTiempo)
+                RespuestasHabilitadas = false; // Asegurar que al mostrar una nueva pregunta, estén deshabilitadas por defecto
                 RespuestaCorrecta = pregunta.RespuestaCorrecta;
-                MensajeEstado = "Nueva pregunta recibida. Esperando para responder..."; // Actualizar mensaje de estado
+                MensajeEstado = "Nueva pregunta recibida. Esperando señal del servidor..."; // Actualizar mensaje de estado
+                TiempoRestante = 0; // Reiniciar o mostrar "0" hasta que el servidor inicie el conteo
             });
-            // Usamos el TiempoRetardoMs que viene en la pregunta, o un valor por defecto si no viene
-            int delayTime = pregunta.TiempoRetardoMs > 0 ? pregunta.TiempoRetardoMs : 3000;
-            await Task.Delay(delayTime); // <-- ¡Ahora el servidor controla este tiempo!
 
+            // ELIMINAR ESTE DELAY: El servidor ahora controlará cuándo se habilitan las respuestas a través de IniciarConteoTiempo
+            // int delayTime = pregunta.TiempoRetardoMs > 0 ? pregunta.TiempoRetardoMs : 3000;
+            // await Task.Delay(delayTime);
+
+            // Esta parte ya no va aquí, se mueve a IniciarTemporizadorCliente que es llamado por el servicio
+            // App.Current.Dispatcher.Invoke(() =>
+            // {
+            //     RespuestasHabilitadas = true;
+            //     MensajeEstado = "¡Tiempo para responder!";
+            // });
+        }
+
+        private void IniciarTemporizadorCliente(int tiempoTotalSegundos)
+        {
             App.Current.Dispatcher.Invoke(() =>
             {
-                RespuestasHabilitadas = true;
-                MensajeEstado = "¡Tiempo para responder!"; // Actualizar mensaje de estado
+                TiempoRestante = tiempoTotalSegundos;
+                RespuestasHabilitadas = true; // Habilitar respuestas cuando el servidor lo indique
+                MensajeEstado = $"¡Tiempo para responder! Tienes {tiempoTotalSegundos} segundos.";
+                clientTimer?.Stop(); // Asegúrate de detenerlo antes de iniciar si ya estaba corriendo
+                clientTimer?.Start();
             });
         }
+
+        private void ClientTimer_Tick(object? sender, EventArgs e)
+        {
+            if (TiempoRestante > 0)
+            {
+                TiempoRestante--;
+            }
+            else
+            {
+                clientTimer?.Stop();
+                RespuestasHabilitadas = false; // Deshabilitar respuestas cuando el tiempo se acaba
+                MensajeEstado = "¡Tiempo terminado! Esperando la siguiente pregunta.";
+                // Opcional: Podrías enviar una respuesta "vacía" al servidor aquí si el tiempo expira
+                clienteUDP?.EnviarRespuesta(nombre, "Tiempo expirado", Puntaje); // Notificar al servidor que el tiempo se acabó
+            }
+        }
+
         [RelayCommand]
         private void SeleccionarRespuesta(string opcionSeleccionada)
         {
+            if (!RespuestasHabilitadas) return; // No permitir respuestas si están deshabilitadas
+
             if (string.IsNullOrWhiteSpace(opcionSeleccionada)) return; // Evitar enviar respuestas vacías
 
             if (opcionSeleccionada == RespuestaCorrecta)
             {
                 Puntaje++;
             }
-            
-            clienteUDP?.EnviarRespuesta(nombre, opcionSeleccionada, Puntaje);
-            //limpiar para siguiente pregunta
-            Opciones.Clear();
-            MensajeEstado = "Respuesta enviada. Esperando la siguiente pregunta."; // Actualizar mensaje de estado
-            RespuestasHabilitadas = false; // Deshabilitar después de enviar respuesta
-            
-        }
 
+            clienteUDP?.EnviarRespuesta(nombre, opcionSeleccionada, Puntaje);
+            RespuestasHabilitadas = false; // Deshabilitar después de enviar respuesta
+            clientTimer?.Stop(); // Detener el temporizador del cliente una vez que se envía la respuesta
+            MensajeEstado = "Respuesta enviada. Esperando la siguiente pregunta."; // Actualizar mensaje de estado
+        }
 
         [RelayCommand]
         public void Registrar()
         {
-
             if (string.IsNullOrWhiteSpace(ipServidor) || string.IsNullOrWhiteSpace(nombre))
             {
                 MensajeEstado = "Ingresa la IP del servidor y tu nombre."; // Mensaje en la vista
@@ -102,7 +146,7 @@ namespace ClienteUDP.ViewModels
             if (clienteUDP == null)
             {
                 clienteUDP = new(ipServidor.Trim(), 65000, 65001);
-                // Suscribirse al nuevo evento de error
+                // Suscribirse al evento de error
                 clienteUDP.MensajeErrorRecibido += (msg) =>
                 {
                     App.Current.Dispatcher.Invoke(() =>
@@ -113,19 +157,14 @@ namespace ClienteUDP.ViewModels
                     });
                 };
                 clienteUDP.PreguntaRecibida += MostrarPregunta;
+                // ¡IMPORTANTE! Suscribirse al evento de inicio de conteo de tiempo del servidor
+                clienteUDP.IniciarConteoTiempo += IniciarTemporizadorCliente;
             }
 
             clienteUDP.EnviarRegistro(nombre.Trim());
             Registrado = true;
             OnPropertyChanged(nameof(PuedeRegistrar));
             MensajeEstado = "Registro enviado. Espera confirmación o el inicio del quiz."; // Mensaje en la vista
-
         }
-        
-
-
-        //public event PropertyChangedEventHandler? PropertyChanged;
-        //private void OnPropertyChanged(string propertyName) =>
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
