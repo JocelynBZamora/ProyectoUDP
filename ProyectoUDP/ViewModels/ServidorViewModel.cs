@@ -84,6 +84,7 @@ namespace ProyectoUDP.ViewModels
                 indicePregunta = 0;
                 // Al iniciar el quiz, también deshabilitamos el ComboBox del TimerControl
                 // Esto se hace a través de una propiedad en el TimerControl, que crearemos a continuación
+                (IniciarCuestionarioCommand as RelayCommand)?.NotifyCanExecuteChanged();
                 if (timerControl != null)
                 {
                     timerControl.HabilitarSeleccionTiempo = false; // Nueva propiedad en TimerControl
@@ -100,6 +101,8 @@ namespace ProyectoUDP.ViewModels
                     MessageBox.Show("¡Fin del Quiz! Revisa las puntuaciones finales."); // Mensaje de fin
                     CuestionarioIniciado = false; // Opcional: Re-habilitar si quieres un "nuevo quiz"
                     OnPropertyChanged(nameof(PuedeIniciarCuestionario));
+                    (IniciarCuestionarioCommand as RelayCommand)?.NotifyCanExecuteChanged();
+
                     if (timerControl != null)
                     {
                         timerControl.HabilitarSeleccionTiempo = true; // Opcional: Re-habilitar
@@ -195,8 +198,8 @@ namespace ProyectoUDP.ViewModels
             });
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string propiedad) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propiedad));
+        //public event PropertyChangedEventHandler? PropertyChanged;
+        //private void OnPropertyChanged(string propiedad) =>
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propiedad));
     }
 }
