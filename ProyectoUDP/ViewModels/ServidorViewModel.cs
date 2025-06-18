@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// ProyectoUDP/ViewModels/ServidorViewModel.cs
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProyectoUDP.Controls;
 using ProyectoUDP.Models;
 using ProyectoUDP.Services;
-using ProyectoUDP.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,6 +16,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ProyectoUDP.ViewModels
 {
@@ -23,32 +26,35 @@ namespace ProyectoUDP.ViewModels
 
         [ObservableProperty]
         private string ipServidor = "0.0.0.0";
-      
+
+        // Nueva propiedad para controlar la habilitación/deshabilitación
+        [ObservableProperty]
+        private bool cuestionarioIniciado = false;
+
+        // Propiedad calculada para simplificar el binding en el XAML
+        public bool PuedeIniciarCuestionario => !CuestionarioIniciado;
+
 
         public ObservableCollection<RespuestaModel> UsuariosConectados { get; } = new();
-
 
         private readonly HashSet<IPEndPoint> ipsRespondidas = new();
         private readonly HashSet<string> nombresRespondidos = new();
         public ObservableCollection<string> MensajesRecibidos { get; set; } = new();
-        public ObservableCollection<string>MensajeOpcion {  get; set; } = new();
+        public ObservableCollection<string> MensajeOpcion { get; set; } = new();
         public bool GetParticipantesConectados() => serverUdp?.RegistroClientes.Count > 0;
 
         public ServidorViewModel()
         {
             ipServidor = Dns.GetHostEntry(Dns.GetHostName())
-                            .AddressList
-                            .FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                            ?.ToString() ?? "Desconocido";
+                                .AddressList
+                                .FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                                ?.ToString() ?? "Desconocido";
             serverUdp = new();
             serverUdp.Respuesta += RegistarRespuesta;
             serverUdp.Iniciar();
             CargarPreguntasDesdeJson();
-
         }
 
-
-        //tiempo para contestar y cambiar de pregunta
         private TimerControl? timerControl;
         public void SetTimerControl(TimerControl control)
         {
@@ -61,7 +67,6 @@ namespace ProyectoUDP.ViewModels
             IniciarCuestionario();
         }
 
-        //iniciar y mostrar las preguntas 
         private int indicePregunta = 0;
         public string PreguntaActual { get => preguntaActual; set { preguntaActual = value; OnPropertyChanged(); } }
         private string preguntaActual = "";
@@ -69,10 +74,20 @@ namespace ProyectoUDP.ViewModels
         [RelayCommand]
         private void IniciarCuestionario()
         {
+            // Establecer a true para deshabilitar los controles una vez que el quiz inicia
+            CuestionarioIniciado = true;
+            OnPropertyChanged(nameof(PuedeIniciarCuestionario)); // Notificar a la UI
+
             // Si es la primera vez que se inicia el cuestionario
             if (PreguntaActual == "")
             {
                 indicePregunta = 0;
+                // Al iniciar el quiz, también deshabilitamos el ComboBox del TimerControl
+                // Esto se hace a través de una propiedad en el TimerControl, que crearemos a continuación
+                if (timerControl != null)
+                {
+                    timerControl.HabilitarSeleccionTiempo = false; // Nueva propiedad en TimerControl
+                }
             }
             else
             {
@@ -81,28 +96,19 @@ namespace ProyectoUDP.ViewModels
                 if (indicePregunta >= preguntas.Length)
                 {
                     // Si llegamos al final, detener el timer
-
                     timerControl?.StopTimer();
+                    MessageBox.Show("¡Fin del Quiz! Revisa las puntuaciones finales."); // Mensaje de fin
+                    CuestionarioIniciado = false; // Opcional: Re-habilitar si quieres un "nuevo quiz"
+                    OnPropertyChanged(nameof(PuedeIniciarCuestionario));
+                    if (timerControl != null)
+                    {
+                        timerControl.HabilitarSeleccionTiempo = true; // Opcional: Re-habilitar
+                    }
                     return;
                 }
             }
             MostrarPregunta(indicePregunta);
-           
-
         }
-        //private void MostrarResumenDePregunta()
-        //{
-        //    var sb = new StringBuilder();
-
-        //    MensajeOpcion.Clear(); // ← evita duplicados
-
-        //    foreach (var linea in sb.ToString().Split('\n'))
-        //    {
-        //        if (!string.IsNullOrWhiteSpace(linea))
-        //            MensajeOpcion.Add(linea);
-        //    }
-        //    ResultadosPreguntaActual = sb.ToString();
-        //}
 
         public PreguntasModel PreguntaEnCurso { get; private set; }
         public ObservableCollection<string> Opciones { get; set; } = new();
@@ -133,12 +139,8 @@ namespace ProyectoUDP.ViewModels
 
             respuestaCorrectaActual = p.RespuestaCorrecta;
             serverUdp?.EnviarPreguntas(PreguntaEnCurso);
-            
-           
         }
 
-
-        //muestra las preguntas del Json
         private PreguntasModel[] preguntas = Array.Empty<PreguntasModel>();
         private void CargarPreguntasDesdeJson()
         {
@@ -165,16 +167,6 @@ namespace ProyectoUDP.ViewModels
 
         private Dictionary<string, int> puntajesPorAlumno = new();
 
-//        private Dictionary<string, int> conteoRespuestas = new()
-//{
-//    { "A)", 0 },
-//    { "B)", 0 },
-//    { "C)", 0 },
-//    { "D)", 0 }
-//};
-
-
-        //Registro usuario
         private void RegistarRespuesta(RespuestaModel responce)
         {
             App.Current.Dispatcher.Invoke(() =>
@@ -191,15 +183,10 @@ namespace ProyectoUDP.ViewModels
                     ipsRespondidas.Add(responce.ClienteEndPoint);
                 }
 
-                //// Actualizar conteo de respuestas
-                //string opcionConPrefijo = $"{responce.Opcion})";
-                //if (conteoRespuestas.ContainsKey(opcionConPrefijo))
-                //    conteoRespuestas[opcionConPrefijo]++;
-
                 // Guardar puntaje
                 puntajesPorAlumno[responce.Nombre] = responce.Puntaje;
 
-                //  Limpiar respuesta anterior
+                // Limpiar respuesta anterior
                 var existentes = MensajesRecibidos.Where(m => m.StartsWith(responce.Nombre)).ToList();
                 foreach (var item in existentes)
                     MensajesRecibidos.Remove(item);
@@ -208,11 +195,8 @@ namespace ProyectoUDP.ViewModels
             });
         }
 
-
-
-
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propiedad) =>
-           PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propiedad));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propiedad));
     }
 }

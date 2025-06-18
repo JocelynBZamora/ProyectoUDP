@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ProyectoUDP/Controls/TimerControl.xaml.cs
+
+using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace ProyectoUDP.Controls
@@ -26,6 +17,22 @@ namespace ProyectoUDP.Controls
         private int selectedTime;
         private bool isAutoCycling = false;
 
+        // Nueva propiedad de dependencia para controlar la habilitación del ComboBox
+        public static readonly DependencyProperty HabilitarSeleccionTiempoProperty =
+            DependencyProperty.Register("HabilitarSeleccionTiempo", typeof(bool), typeof(TimerControl), new PropertyMetadata(true, OnHabilitarSeleccionTiempoChanged));
+
+        public bool HabilitarSeleccionTiempo
+        {
+            get { return (bool)GetValue(HabilitarSeleccionTiempoProperty); }
+            set { SetValue(HabilitarSeleccionTiempoProperty, value); }
+        }
+
+        private static void OnHabilitarSeleccionTiempoChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (TimerControl)d;
+            control.TimerComboBox.IsEnabled = (bool)e.NewValue;
+        }
+
 
         public event EventHandler TimerCompleted;
 
@@ -33,6 +40,8 @@ namespace ProyectoUDP.Controls
         {
             InitializeComponent();
             InitializeTimer();
+            // Asegurarse de que el ComboBox inicie habilitado
+            TimerComboBox.IsEnabled = HabilitarSeleccionTiempo;
         }
 
         private void InitializeTimer()
