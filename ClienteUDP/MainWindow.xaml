@@ -22,8 +22,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <!-- Registro -->
         <Grid Grid.Row="0" Margin="0 0 0 20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -31,40 +31,35 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- IP del Servidor -->
             <StackPanel Grid.Column="0" Margin="0 0 10 0">
                 <TextBlock Text="IP del Servidor:" FontSize="14"/>
-                <TextBox Text="{Binding IpServidor, UpdateSourceTrigger=PropertyChanged}" 
-                 Margin="0 5 0 0" Padding="6" FontSize="14"
+                <TextBox Text="{Binding IpServidor, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0 5 0 0" Padding="6" FontSize="14"
                          IsEnabled="{Binding PuedeRegistrar}"/>
             </StackPanel>
 
-            <!-- Nombre de Usuario -->
             <StackPanel Grid.Column="1" Margin="10 0 10 0">
                 <TextBlock Text="Nombre de Usuario:" FontSize="14"/>
-                <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}" 
-                 Margin="0 5 0 0" Padding="6" FontSize="14"
+                <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0 5 0 0" Padding="6" FontSize="14"
                          IsEnabled="{Binding PuedeRegistrar}"/>
             </StackPanel>
 
-            <!-- Botón de Registrar -->
             <Button Grid.Column="2" Content="Registrar"
-            Command="{Binding RegistrarCommand}"
-                     IsEnabled="{Binding PuedeRegistrar}"
-            Background="#007ACC"
-            Foreground="White"
-            FontWeight="SemiBold"
-            Padding="10"
-            BorderThickness="0"
-            Margin="10 20 0 0"
-            VerticalAlignment="Bottom"
-            Width="100"/>
+                    Command="{Binding RegistrarCommand}"
+                    IsEnabled="{Binding PuedeRegistrar}"
+                    Background="#007ACC"
+                    Foreground="White"
+                    FontWeight="SemiBold"
+                    Padding="10"
+                    BorderThickness="0"
+                    Margin="10 20 0 0"
+                    VerticalAlignment="Bottom"
+                    Width="100"/>
         </Grid>
 
-
-        <!-- Pregunta -->
         <StackPanel Grid.Row="1" Margin="0 10 0 20">
-            <TextBlock Text="{Binding PreguntaActual}" 
+            <TextBlock Text="{Binding PreguntaActual}"
                        FontSize="16"
                        FontWeight="SemiBold"
                        TextWrapping="Wrap"
@@ -72,7 +67,6 @@
                        Margin="0 5 0 0" />
         </StackPanel>
 
-        <!-- Opciones -->
         <ItemsControl Grid.Row="2" ItemsSource="{Binding Opciones}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -88,5 +82,11 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+
+        <TextBlock Grid.Row="4" Text="{Binding MensajeEstado}"
+                   FontSize="12"
+                   Foreground="#E53935" HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Margin="0 10 0 0"/>
     </Grid>
 </Window>

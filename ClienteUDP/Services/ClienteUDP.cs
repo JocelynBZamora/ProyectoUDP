@@ -28,6 +28,8 @@ namespace ClienteUDP.Services
             Task.Run(Recibir);
            
         }
+        public event Action<string>? MensajeErrorRecibido; // Nuevo evento para errores
+
         private async Task Recibir()
         {
             while (true)
@@ -36,7 +38,9 @@ namespace ClienteUDP.Services
                 var mensaje = Encoding.UTF8.GetString(responce.Buffer);
                 if (mensaje.StartsWith("ERROR|DUPLICADO"))
                 {
-                    DuplicadoRecibido?.Invoke();
+                    // Extraer el mensaje específico si lo hubiera o un mensaje genérico
+                    string errorMessage = "Nombre de usuario ya existe."; // Mensaje por defecto
+                    MensajeErrorRecibido?.Invoke(errorMessage);
                 }
                 else if (mensaje.Contains("\"Tipo\":\"Pregunta\""))
                 {
