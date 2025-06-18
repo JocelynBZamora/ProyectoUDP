@@ -128,20 +128,29 @@ namespace ProyectoUDP.ViewModels
 
             var p = preguntas[indice];
             PreguntaActual = p.Texto;
-            ResultadosPreguntaActual = "";
+            ResultadosPreguntaActual = ""; //Limpiar resultados de la pregunta anterior
 
             Opciones.Clear();
             foreach (var op in p.Opciones)
                 Opciones.Add(op);
-            PreguntaEnCurso = new PreguntasModel();
 
-            PreguntaEnCurso.Texto = p.Texto;
-            PreguntaEnCurso.RespuestaCorrecta = p.RespuestaCorrecta;
-            PreguntaEnCurso.Opciones = p.Opciones;
-
+            PreguntaEnCurso = new PreguntasModel()
+            {
+                Texto = p.Texto,
+                RespuestaCorrecta = p.RespuestaCorrecta,
+                Opciones = p.Opciones
+            };
 
             respuestaCorrectaActual = p.RespuestaCorrecta;
             serverUdp?.EnviarPreguntas(PreguntaEnCurso);
+
+            // Reiniciar el temporizador para la nueva pregunta
+            // Asegurarse de que el timerControl no sea null antes de llamarlo
+            if (timerControl != null)
+            {
+                timerControl.StopTimer(); // Detener si estaba corriendo y restablecer el tiempo
+                timerControl.StartTimer(); // Iniciar el temporizador para la nueva pregunta
+            }
         }
 
         private PreguntasModel[] preguntas = Array.Empty<PreguntasModel>();
